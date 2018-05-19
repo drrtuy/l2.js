@@ -4,7 +4,8 @@
   "description": "global l2 (oracles, state/payment) channels network, framework",
   "main": "l2.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dist": "browserify lib/l2.js > dist/l2.js"
   },
   "repository": {
     "type": "git",
@@ -25,10 +26,13 @@
     "bitcoinjs-lib": "^3.3.2",
     "command-line-args": "^5.0.2",
     "ethereumjs-tx": "^1.3.4",
-    "ethereumjs-util": "^5.1.5",
+    "ethereumjs-util": "^5.2.0",
     "scryptsy": "^2.0.0",
     "secp256k1": "^3.5.0",
     "uuid": "^3.2.1",
     "web3": "^0.20.6"
+  },
+  "devDependencies": {
+    "browserify": "^16.2.2"
   }
 }
