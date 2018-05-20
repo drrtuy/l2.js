@@ -1,0 +1,53 @@
+<script type="text/javascript" src="../dist/l2.js"></script>
+<script type="text/javascript">
+	
+	window.addEventListener('load', async function() {
+    console.log("window.web3",window.web3);
+  // Checking if Web3 has been injected by the browser (Mist/MetaMask)
+/*  
+  if (typeof web3 !== 'undefined') {
+    // Use Mist/MetaMask's provider
+    web3js = new Web3(web3.currentProvider);
+  } else {
+    console.log('No web3? You should consider trying MetaMask!')
+    // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
+    web3js = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+  }
+*/
+  // Now you can start your app & access web3 freely:
+  //startApp()
+ // console.log(web3js);
+
+web3js = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+
+console.log(l2)
+
+var skA="0980f480e1c1207ee2425198859243236f9c1811e9d9a92283bac261a5410dc9"
+var skB="80b9675cf901faa4b4b95b6e7a5028d2b19db7108eb6b1909568f2df0ff48f03"
+
+
+var eaA="0xf6e6fecf27b3aa9786c0e74c4fc33aaa2ebdeabd"
+var eaB="0x07b1032016aa26925049cedb2a3bd71fbb94a07b"
+
+
+//var web3js = new Web3();
+//web3js.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
+
+const l2A=new l2('eth',{web3:web3js,sk:skA})
+const l2B=new l2('eth',{web3:web3js,sk:skB})
+
+console.log(l2A)
+console.log(l2B)
+
+
+var vA=1.0
+var vB=1.0
+var ch=await l2A.channel_open(vA,eaB,3600,0,{sk:skA})
+console.log('ch',ch)
+
+var res=await l2B.channel_deposit(ch,vB,{sk:skB})
+console.log('res',res)
+//console.log('l2A.channel_info',l2A.channel_info())
+
+})
+</script>
