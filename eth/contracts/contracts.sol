@@ -1,46 +1,46 @@
 pragma solidity ^0.4.19;
 
 contract XPaymentChannel {
-    address public A;
-    address public B;
-    mapping( address=> uint256) values;
-    uint256 public sum;
-    uint256 public mv;
+	address public A;
+	address public B;
+	mapping( address=> uint256) values;
+	uint256 public sum;
+	uint256 public mv;
 
-    uint256 challenge_endtime;
-    uint32 nonce;
+	uint256 challenge_endtime;
+	uint32 nonce;
 
-    enum ChannelState{init,funded,challenge,finished}
-    ChannelState public state;
+	enum ChannelState{init,funded,challenge,finished}
+	ChannelState public state;
 
-    uint256 ttl;
+	uint256 ttl;
 
-    uint256 public constant challenge_period = 1 minutes;
+	uint256 public constant challenge_period = 1 minutes;
 
-    event OnPayment(address sender, uint256 value);
-    event OnChallengeStart(address sender,uint32 id,uint256 vA, uint256 vB,uint8 v,bytes32 r,bytes32 s);
-    event OnChallengeUpdate(address sender,uint32 id,uint256 vA, uint256 vB,uint8 v,bytes32 r,bytes32 s);
-    event OnChallengePenalty(address sender,uint32 id,uint256 vA, uint256 vB,uint8 v,bytes32 r,bytes32 s);
-    event OnChallengeFinish(address sender,uint32 id,uint256 vA, uint256 vB,uint8 v,bytes32 r,bytes32 s);
-    event OnWithdraw(address sender, uint256 value);
+	event OnPayment(address sender, uint256 value);
+	event OnChallengeStart(address sender,uint32 id,uint256 vA, uint256 vB,uint8 v,bytes32 r,bytes32 s);
+	event OnChallengeUpdate(address sender,uint32 id,uint256 vA, uint256 vB,uint8 v,bytes32 r,bytes32 s);
+	event OnChallengePenalty(address sender,uint32 id,uint256 vA, uint256 vB,uint8 v,bytes32 r,bytes32 s);
+	event OnChallengeFinish(address sender,uint32 id,uint256 vA, uint256 vB,uint8 v,bytes32 r,bytes32 s);
+	event OnWithdraw(address sender, uint256 value);
 
-    function XPaymentChannel(address _B, uint256 _ttl, uint256 _mv) payable public {
-    	A=msg.sender;
-    	B=_B;
-    	ttl = now+_ttl;
-    	challenge_endtime = 0;
-    	nonce = 0;
-    	mv = _mv;
-    	require(msg.value>=mv);
-    	if(msg.value>0){
-    		values[msg.sender]=msg.value;	
-    		state=ChannelState.funded;
-    		sum=msg.value;
-    	} else {
-    		sum=0;
-    		state=ChannelState.init;
-    	}
-    }
+	constructor(address _B, uint256 _ttl, uint256 _mv) payable public {
+		A=msg.sender;
+		B=_B;
+		ttl = now +_ttl;
+		challenge_endtime = 0;
+		nonce = 0;
+		mv = _mv;
+		//require(msg.value>=mv);
+		if(msg.value>0){
+			values[msg.sender]=msg.value;
+			state=ChannelState.funded;
+			sum=msg.value;
+		} else {
+			sum=0;
+			state=ChannelState.init;
+		}
+	}
 
 	function ChannelInfo() public view returns(
 		address,address, uint256,uint256, uint256,uint32,uint8,uint256){
@@ -49,10 +49,10 @@ contract XPaymentChannel {
 
 	function () payable public {
 		require(msg.sender==A ||msg.sender==B);
-    	require(msg.value>=mv);
+		require(msg.value>=mv);
 		require(msg.value>0);
 		values[msg.sender]+=msg.value;
-    	if(state==ChannelState.init)state=ChannelState.funded;
+		if(state==ChannelState.init)state=ChannelState.funded;
 		sum+=msg.value;
 		emit OnPayment(msg.sender,msg.value);
 	}
@@ -74,7 +74,7 @@ contract XPaymentChannel {
 			require(A == ecrecover(keccak256(address(this), B, id,vA,vB), v, r, s));
 		} else {
 			revert();
-		}	
+		}
 	}
 
 	function testSig(uint32 id,uint256 vA, uint256 vB,uint256 h,bytes pi,
@@ -82,18 +82,18 @@ contract XPaymentChannel {
 		//if(h!=0){require(h==uint256(keccak256(pi)));}
 		checkSig(id,vA,vB,h,v,r,s);
 		return true;
-	}	
+	}
 
 	function testHL(uint256 h, bytes pi) pure public returns(uint256,bool){
 		uint256 x=uint256(keccak256(pi));
 		if(h!=0){require(h==uint256(keccak256(pi)));}
 		return (x,x==h);
-	}	
+	}
 
 
 	function challengeStart(uint32 id,uint256 vA, uint256 vB,uint256 h, bytes pi,
 		uint8 v,bytes32 r,bytes32 s) public{
-    	require(state==ChannelState.funded);
+		require(state==ChannelState.funded);
 		require(sum>0 && sum == vA+vB);
 		if(h!=0){require(h==uint256(keccak256(pi)));}
 		checkSig(id,vA,vB,h,v,r,s);
@@ -106,7 +106,7 @@ contract XPaymentChannel {
 
 	function challengeUpdate(uint32 id,uint256 vA, uint256 vB,uint256 h, uint256 pi,
 		uint8 v,bytes32 r,bytes32 s) public{
-    	require(state==ChannelState.challenge);
+		require(state==ChannelState.challenge);
 		require(sum>0 && sum == vA+vB);
 		if(h!=0){require(h==uint256(keccak256(pi)));}
 		checkSig(id,vA,vB,h,v,r,s);
@@ -117,7 +117,7 @@ contract XPaymentChannel {
 
 	function challengePenalty(uint32 id,uint256 vA, uint256 vB,uint256 h, uint256 pi,
 		uint8 v,bytes32 r,bytes32 s) public{
-    	require(state==ChannelState.challenge);
+		require(state==ChannelState.challenge);
 		require(sum>0 && sum == vA+vB);
 		if(h!=0){require(h==uint256(keccak256(pi)));}
 		checkSig(id,vA,vB,h,v,r,s);
@@ -133,8 +133,8 @@ contract XPaymentChannel {
 
 	function challengeFinish(uint32 id,uint256 vA, uint256 vB,uint256 h, uint256 pi,
 		uint8 v,bytes32 r,bytes32 s) public{
-    	require(state==ChannelState.challenge);
-    	require(now>challenge_endtime);
+		require(state==ChannelState.challenge);
+		require(now>challenge_endtime);
 		require(sum>0 && sum == vA+vB);
 		if(h!=0){require(h==uint256(keccak256(pi)));}
 		checkSig(id,vA,vB,h,v,r,s);
@@ -153,13 +153,11 @@ contract XPaymentChannel {
 		require(state!=ChannelState.finished);
 		uint256 value = values[msg.sender];
 		require(value>0);
-		require(now>ttl);		
+		require(now>ttl);
 		msg.sender.transfer(value);
 		sum-=value;
 		values[msg.sender]=0;
 		emit OnWithdraw(msg.sender,value);
 	}
-	
+
 }
-
-
