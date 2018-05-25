@@ -25,19 +25,27 @@ const l2i=new l2('eth',{address:opts.contract,provider:opts.provider, web3: web3
 
 console.log("L2 example1");
 
+var contractAddr = '';
+
 // channel_open returns promice, so switch to then
 l2i.channel_open(opts.value,
     opts.bob_address,
     opts.ttl,
     opts.gaz_limit,
     {sk: opts.Alice}
-).then( contractAddr => {
-    console.log(contractAddr);
-    l2i.channel_deposit(contractAddr, opts.value,{sk: opts.Alice});
-}).then(function() {
-    // make offline trx
-}).then(x => {
-    // try to close
+).then( ch => {
+    console.log(ch);
+    contractAddr = ch;
+    l2i.channel_deposit(ch, opts.value,{sk: opts.Alice})
+    .then(function() {
+        console.log('channel_transfer()');
+        l2i.channel_transfer(contractAddr, opts.bob_address, 0.001)
+        .then( function() {
+            l2i.channel_close_start(contractAddr, {sk: opts.Alice})
+            .then(function(x) {console.log(x);})
+            .catch(function() {console.log('error');})
+         });
+    });
 });
 
 
