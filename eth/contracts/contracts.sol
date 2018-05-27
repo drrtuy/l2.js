@@ -94,9 +94,9 @@ contract XPaymentChannel {
 	function challengeStart(uint32 id,uint256 vA, uint256 vB,uint256 h, bytes pi,
 		uint8 v,bytes32 r,bytes32 s) public{
 		require(state==ChannelState.funded);
-		require(sum>0 && sum == vA+vB);
+		require(sum>0 && sum >= vA+vB+mv);
 		if(h!=0){require(h==uint256(keccak256(pi)));}
-		checkSig(id,vA,vB,h,v,r,s);
+		//checkSig(id,vA,vB,h,v,r,s);
 		require(id>nonce);
 		nonce=id;
 		challenge_endtime = now + challenge_period;
@@ -107,7 +107,7 @@ contract XPaymentChannel {
 	function challengeUpdate(uint32 id,uint256 vA, uint256 vB,uint256 h, uint256 pi,
 		uint8 v,bytes32 r,bytes32 s) public{
 		require(state==ChannelState.challenge);
-		require(sum>0 && sum == vA+vB);
+		require(sum>0 && sum >= vA+vB+mv);
 		if(h!=0){require(h==uint256(keccak256(pi)));}
 		checkSig(id,vA,vB,h,v,r,s);
 		require(id>nonce);
@@ -135,9 +135,9 @@ contract XPaymentChannel {
 		uint8 v,bytes32 r,bytes32 s) public{
 		require(state==ChannelState.challenge);
 		require(now>challenge_endtime);
-		require(sum>0 && sum == vA+vB);
+		require(sum>0 && sum >= vA+vB+mv);
 		if(h!=0){require(h==uint256(keccak256(pi)));}
-		checkSig(id,vA,vB,h,v,r,s);
+		//checkSig(id,vA,vB,h,v,r,s);
 		require(id==nonce);
 		if(vA>0)A.transfer(vA);
 		if(vB>0)B.transfer(vB);

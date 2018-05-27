@@ -41,7 +41,7 @@ l2i.channel_open(opts.value,
         console.log('channel_transfer()');
         l2i.channel_transfer(contractAddr, opts.bob_address, 0.001)
         .then( function() {
-            l2i.channel_close_start(contractAddr, {sk: opts.Alice})
+            l2i.channel_close_start(contractAddr, {sk: opts.Alice, value: 1.0})
             .then(function(x) {console.log(x);})
             .catch(function() {console.log('error');})
          });
